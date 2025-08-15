@@ -94,6 +94,16 @@ app.use("/host",(req,res,next)=>{
 app.use("/host",hostRouter);
 app.use(authRouter);
 
+if (process.env.NODE_ENV === 'production') {
+  app.use((req, res, next) => {
+    if (req.headers['x-forwarded-proto'] !== 'https') {
+      return res.redirect('https://' + req.headers.host + req.url);
+    }
+    next();
+  });
+}
+
+
 app.use(errorsController.pageNotFound);
 
 const PORT = 3000;
