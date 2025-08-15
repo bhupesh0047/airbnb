@@ -1,0 +1,133 @@
+<%- include('../partials/head') %>
+<body class="bg-gray-50">
+  <%- include('../partials/navHeader') %>
+
+  <main class="flex items-center justify-center min-h-screen">
+    <div class="bg-white shadow-md rounded-lg p-8 w-full max-w-md">
+      <!-- Heading -->
+      <h1 class="text-2xl font-semibold text-center mb-6">Create Your Account</h1>
+
+      <form action="/signup" method="POST" class="space-y-5">
+        
+
+        <!-- First & Last Name -->
+        <div class="space-y-2">
+          <%- include('../partials/errors')%>
+          <label class="block text-sm font-medium text-gray-700">
+            <i class="fas fa-user-circle mr-1"></i> Name
+          </label>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="relative">
+              <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
+                <i class="fas fa-user"></i>
+              </span>
+              <input type="text" name="firstName" value="<%= oldInput.firstName ? oldInput.firstName: '' %>" placeholder="First Name"
+                class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                required />
+            </div>
+
+            <div class="relative">
+              <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
+                <i class="fas fa-user"></i>
+              </span>
+              <input type="text" name="lastName" value="<%=oldInput.lastName ? oldInput.lastName : '' %>" placeholder="Last Name"
+                class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-gray-700">
+            <i class="fas fa-at mr-1"></i> Email Address
+          </label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
+              <i class="fas fa-envelope"></i>
+            </span>
+            <input type="email" name="email" value="<%=oldInput.email? oldInput.email: '' %>" placeholder="your.email@example.com"
+              class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+              required />
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-gray-700">
+            <i class="fas fa-key mr-1"></i> Password
+          </label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
+              <i class="fas fa-lock"></i>
+            </span>
+            <input type="password" name="password" placeholder="Enter Your Password"
+              class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+              required />
+          </div>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-gray-700">
+            <i class="fas fa-shield-alt mr-1"></i> Confirm Password
+          </label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
+              <i class="fas fa-lock"></i>
+            </span>
+            <input type="password" name="confirmPassword" placeholder="Confirm Your Password"
+              class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+              required />
+          </div>
+        </div>
+
+        <!-- Register as -->
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-gray-700">
+            <i class="fas fa-user-tag mr-1"></i> Account Type
+          </label>
+          <div class="border border-gray-300 rounded-md p-4">
+            <div class="flex space-x-6">
+              <label class="flex items-center space-x-2">
+                <input type="radio" name="userType" value="guest" class="text-red-500 focus:ring-red-500" <% if (oldInput.userType === 'guest') { %> checked <% } %> />
+                <i class="fas fa-user-friends text-gray-500"></i>
+                <span>Guest</span>
+              </label>
+              <label class="flex items-center space-x-2">
+                <input type="radio" name="userType" value="host" class="text-red-500 focus:ring-red-500" <% if (oldInput.userType === 'host') { %> checked <% } %> />
+                <i class="fas fa-home text-gray-500"></i>
+                <span>Host</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Terms -->
+        <label class="flex items-center space-x-2 text-sm text-gray-600">
+          <input type="checkbox" name="terms" class="text-red-500 focus:ring-red-500 rounded" required />
+          <span>
+            I agree to the
+            <a href="#" class="text-red-500 hover:underline">terms and conditions</a>
+          </span>
+        </label>
+
+        <!-- Submit Button -->
+        <button type="submit"
+          class="w-full bg-red-500 text-white py-3 rounded-md font-medium flex items-center justify-center gap-2 hover:bg-red-600 transition">
+          Register
+          <i class="fas fa-arrow-right"></i>
+        </button>
+
+        <!-- Login link -->
+        <p class="text-center text-sm text-gray-600">
+          Already have an account?
+          <a href="/login" class="text-red-500 hover:underline">Log in</a>
+        </p>
+      </form>
+    </div>
+  </main>
+
+  <!-- Font Awesome -->
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</body>
+</html>

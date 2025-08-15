@@ -1,0 +1,140 @@
+<%- include('../partials/head') %>
+<body class="bg-gray-50">
+  <%- include('../partials/navHeader') %>
+  <main class="container mx-auto py-12 px-4">
+    <div class="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-8">
+      <!-- Header Section -->
+      <div class="text-center mb-8">
+        <h1 class="text-4xl font-extrabold text-gray-800 mb-2 tracking-tight">
+          <%=editing? "Edit": "Register"%> your Home on 
+          <span class="text-blue-600">Airbnb</span>
+        </h1>
+        <p class="text-lg text-gray-500 font-normal">Fill in the details about your property</p>
+      </div>
+
+      <form action="/host/<%=editing? "edit-home": "host-homes-list"%>" method="POST" 
+        enctype="multipart/form-data" class="space-y-6">
+        <input type="hidden" name="id" value="<%=editing? home._id: ''%>"/>
+        
+        <!-- Basic Information Section -->
+        <div class="space-y-6">
+          <h2 class="text-2xl font-bold text-blue-600 mb-4 tracking-wide">Basic Information</h2>
+          
+          <!-- Home Name -->
+          <div class="space-y-2">
+            <label class="block text-base font-semibold text-gray-700 tracking-wide">
+              <i class="fas fa-home mr-2 text-blue-400"></i>Home Name
+            </label>
+            <input 
+              type="text" 
+              name="name" 
+              placeholder="Enter Your Home Name" 
+              value="<%=editing? home.name: ''%>" 
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700 placeholder-gray-400 text-base font-normal"
+            />
+          </div>
+
+          <!-- Price -->
+          <div class="space-y-2">
+            <label class="block text-base font-semibold text-gray-700 tracking-wide">
+              <i class="fas fa-tag mr-2 text-blue-400"></i>Price per Night
+            </label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-3 flex items-center text-gray-500 font-medium">$</span>
+              <input 
+                type="text" 
+                name="price" 
+                placeholder="Enter Price Per Night" 
+                value="<%=editing? home.price: ''%>" 
+                class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700 placeholder-gray-400 text-base font-normal"
+              />
+            </div>
+          </div>
+
+          <!-- Location -->
+          <div class="space-y-2">
+            <label class="block text-base font-semibold text-gray-700 tracking-wide">
+              <i class="fas fa-map-marker-alt mr-2 text-blue-400"></i>Location
+            </label>
+            <input 
+              type="text" 
+              name="location" 
+              placeholder="Enter Property Location" 
+              value="<%=editing? home.location: ''%>" 
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700 placeholder-gray-400 text-base font-normal"
+            />
+          </div>
+
+          <!-- Rating -->
+          <div class="space-y-2">
+            <label class="block text-base font-semibold text-gray-700 tracking-wide">
+              <i class="fas fa-star mr-2 text-blue-400"></i>Rating
+            </label>
+            <input 
+              type="number" 
+              name="rating" 
+              placeholder="Enter Rating (1-5)" 
+              min="1" 
+              max="5" 
+              value="<%=editing? home.rating: ''%>" 
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700 placeholder-gray-400 text-base font-normal"
+            />
+          </div>
+
+          <!-- Photo URL -->
+          <div class="space-y-2">
+            <label class="block text-base font-semibold text-gray-700 tracking-wide">
+              <i class="fas fa-image mr-2 text-blue-400"></i>Photo
+            </label>
+            <input 
+              type="file" 
+              name="Photo" 
+              accept="image/jpg, image/jpeg, image/png"
+              value="<%=editing? home.Photo: ''%>" 
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700 placeholder-gray-400 text-base font-normal"
+            />
+          </div>
+
+          <!-- Home rule pdf -->
+          <div class="space-y-2">
+            <label class="block text-base font-semibold text-gray-700 tracking-wide">
+              <i class="fas fa-image mr-2 text-blue-400"></i>Rule_pdf
+            </label>
+            <input 
+              type="file" 
+              name="Rule_pdf" 
+              accept="application/pdf"
+              value="<%=editing? home.Rule_pdf: ''%>" 
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700 placeholder-gray-400 text-base font-normal"
+            />
+          </div>
+
+          <!-- Description -->
+          <div class="space-y-2">
+            <label class="block text-base font-semibold text-gray-700 tracking-wide">
+              <i class="fas fa-align-left mr-2 text-blue-400"></i>Description
+            </label>
+            <textarea  
+              name="description" 
+              placeholder="Describe your property in detail" 
+              rows="4"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700 placeholder-gray-400 text-base font-normal leading-relaxed"
+            ><%=editing? home.description: ''%></textarea>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-4 rounded-lg font-semibold text-lg hover:from-blue-600 hover:to-blue-700 transition duration-300 flex items-center justify-center gap-2 shadow-md">
+          <i class="fas fa-<%=editing? 'edit': 'plus'%>"></i>
+          <%=editing? "Update" : "Submit"%> Home
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</body>
+</html>
