@@ -7,10 +7,12 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "npm run tailwind && nodemon app.js",
     "tailwind": "tailwindcss -i ./views/input.css -o ./public/output.css --watch",
-    "start": "start cmd /k \"npm run tailwind\" && nodemon app.js"
+    "build:css": "tailwindcss -i ./views/input.css -o ./public/output.css",
+    "start": "npm run build:css && node app.js"
   },
+
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "body-parser": "^2.2.0",
