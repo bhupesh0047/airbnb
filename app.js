@@ -122,6 +122,16 @@ app.use("/host", (req, res, next) => {
     res.redirect("/login");
   }
 });
+
+
+app.use((req, res, next) => {
+  if (req.headers['x-forwarded-proto'] !== 'https') {
+    return res.redirect('https://' + req.headers.host + req.url);
+  }
+  next();
+});
+
+
 app.use("/host", hostRouter);
 app.use(authRouter);
 
