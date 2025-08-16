@@ -10,12 +10,18 @@
         <p class="text-gray-600 mt-2">Please sign in to your account</p>
       </div>
 
-      <form action="/login" method="POST" class="space-y-6">
-        <!-- Username Field -->
+      <!-- Use POST with CSRF Protection -->
+      <form action="/login" method="POST" class="space-y-6" autocomplete="off">
+        <!-- CSRF Token (important for security) -->
+        <% if (typeof csrfToken !== 'undefined') { %>
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <% } %>
+
+        <!-- Username/Email Field -->
         <div class="space-y-2">
-          <%- include('../partials/errors')%>
+          <%- include('../partials/errors') %>
           <label class="block text-sm font-medium text-gray-700">
-            <i class="fas fa-user mr-2"></i>Username
+            <i class="fas fa-user mr-2"></i>Email
           </label>
           <div class="relative">
             <span class="absolute inset-y-0 left-3 flex items-center text-gray-400">
@@ -24,10 +30,13 @@
             <input 
               type="email" 
               name="email" 
-              value="<%= oldInput.email ? oldInput.email: '' %>"
-              placeholder="Enter your email Id"
-              class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              value="<%= oldInput && oldInput.email ? oldInput.email : '' %>"
+              placeholder="Enter your email"
+              class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg 
+                     focus:outline-none focus:ring-2 focus:ring-red-500 
+                     focus:border-transparent"
               required
+              autocomplete="email"
             />
           </div>
         </div>
@@ -45,25 +54,35 @@
               type="password" 
               name="password" 
               placeholder="Enter your password"
-              class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg 
+                     focus:outline-none focus:ring-2 focus:ring-red-500 
+                     focus:border-transparent"
               required
+              autocomplete="current-password"
             />
           </div>
         </div>
 
         <!-- Remember Me & Forgot Password -->
-        <div class="flex items-center justify-between text-sm">
+        <!-- <div class="flex items-center justify-between text-sm">
           <label class="flex items-center">
-            <input type="checkbox" class="text-red-500 rounded focus:ring-red-500 mr-2">
+            <input 
+              type="checkbox" 
+              name="remember" 
+              class="text-red-500 rounded focus:ring-red-500 mr-2"
+            >
             <span class="text-gray-600">Remember me</span>
           </label>
-          <a href="#" class="text-red-500 hover:text-red-600">Forgot password?</a>
-        </div>
+          <a href="/forgot-password" class="text-red-500 hover:text-red-600">Forgot password?</a>
+        </div> -->
 
         <!-- Sign In Button -->
         <button
           type="submit"
-          class="w-full bg-red-500 text-white py-3 rounded-lg font-medium hover:bg-red-600 transition duration-300 flex items-center justify-center gap-2">
+          class="w-full bg-red-500 text-white py-3 rounded-lg font-medium 
+                 hover:bg-red-600 transition duration-300 flex items-center 
+                 justify-center gap-2"
+        >
           <i class="fas fa-sign-in-alt"></i>
           Sign In
         </button>
@@ -77,7 +96,13 @@
     </div>
   </main>
 
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Font Awesome (always load over HTTPS) -->
+  <link 
+    rel="stylesheet" 
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+    integrity="sha512-iecdLmaskl7CVkqkXNQ/ZdD8QEU1l+0C4w6X5n0lrkIuP0LGEaUO6nCjO+HvyU5H3Y1u2Ae5zjN7x7E5Jv+jQw==" 
+    crossorigin="anonymous" 
+    referrerpolicy="no-referrer"
+  />
 </body>
 </html>
