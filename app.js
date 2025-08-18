@@ -9,6 +9,17 @@ const mongoose = require("mongoose");
 const multer = require("multer");
 require("dotenv").config();
 
+const cloudinary = require("cloudinary").v2;
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+
+// configure cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+
 // local modules
 const rootDir = require("./utils/pathUtil");
 const storeRouter = require("./Routes/storeRouter");
@@ -44,36 +55,30 @@ const randomString = (length) => {
 };
 
 // multer setup
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
+// cloudinary storage setup
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: async (req, file) => {
+    const isPdf = file.mimetype === "application/pdf";
+    let folder = "general_uploads";
     if (file.fieldname === "Photo") {
-      cb(null, "uploads/images/");
+      folder = "home_images";
     } else if (file.fieldname === "Rule_pdf") {
-      cb(null, "uploads/rules/");
-    } else {
-      cb(new Error("Invalid field name"), false);
+      folder = "home_rules";
     }
-  },
-  filename: (req, file, cb) => {
-    cb(null, randomString(10) + "-" + file.originalname);
+    return {
+      folder: folder,
+      resource_type: isPdf ? "raw" : "image",
+      // resource_type: "auto",
+      format: isPdf ? undefined : file.mimetype.split("/")[1], // jpg, png, pdf
+      public_id: randomString(10), // unique name
+    };
   },
 });
 
-const fileFilter = (req, file, cb) => {
-  if (
-    (file.fieldname === "Photo" &&
-      ["image/png", "image/jpg", "image/jpeg"].includes(file.mimetype)) ||
-    (file.fieldname === "Rule_pdf" && file.mimetype === "application/pdf")
-  ) {
-    cb(null, true);
-  } else {
-    cb(null, false);
-  }
-};
-
-const multerOptions = { storage, fileFilter };
-
 // middleware
+
+const multerOptions = { storage }; // no need for fileFilter anymore
 app.use(express.urlencoded({ extended: true }));
 app.use(
   multer(multerOptions).fields([
@@ -82,10 +87,8 @@ app.use(
   ])
 );
 
+
 app.use(express.static(path.join(rootDir, "public")));
-app.use("/uploads", express.static(path.join(rootDir, "uploads")));
-app.use("/host/uploads", express.static(path.join(rootDir, "uploads")));
-app.use("/homes/uploads", express.static(path.join(rootDir, "uploads")));
 
 // sessions
 app.use(
@@ -122,16 +125,6 @@ app.use("/host", (req, res, next) => {
     res.redirect("/login");
   }
 });
-
-
-app.use((req, res, next) => {
-  if (req.headers['x-forwarded-proto'] !== 'https') {
-    return res.redirect('https://' + req.headers.host + req.url);
-  }
-  next();
-});
-
-
 app.use("/host", hostRouter);
 app.use(authRouter);
 
@@ -139,7 +132,7 @@ app.use(authRouter);
 app.use(errorsController.pageNotFound);
 
 // DB + Server
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 mongoose
   .connect(DB_path)

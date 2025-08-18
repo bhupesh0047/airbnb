@@ -1,5 +1,6 @@
 const Home= require("../models/home");
 const fs=require('fs');
+const cloudinary = require("cloudinary").v2;
 
 exports.getAddHome=(req, res, next) => {
   console.log(req.url, req.method);
@@ -12,95 +13,123 @@ exports.getAddHome=(req, res, next) => {
   });
 }
 
-exports.postAddHome=(req, res, next) => {
-  const{ name, price, location, rating, description } = req.body;
-  console.log(name, price, location, rating, description)
-  console.log(req.files.Photo);
-  console.log(req.files.Rule_pdf)
-  if(!req.files || !req.files.Photo){
-    return res.status(422).send("No image provided");
-  }
-  const Photo="uploads/images/"+req.files.Photo[0].filename;
-  console.log(req.files.Photo[0].path);
+exports.postAddHome = async (req, res, next) => {
+  try {
+    const { name, price, location, rating, description } = req.body;
 
-  if(!req.files || !req.files.Rule_pdf){
-    return res.status(422).send("No document provided");
-  }
-  const Rule_pdf="uploads/rules/"+req.files.Rule_pdf[0].filename;
-
-  const home = new Home({name, price, location, rating, Photo, Rule_pdf, description});
-  
-  home.save().then(()=>{
-    console.log("home is added successfully");
-  });
-  res.redirect('/host/host-homes-list');
-}
-
-exports.postEditHome=(req, res, next) => {
-  const{ id, name, price, location, rating, description } = req.body;
-
-  Home.findById(id).then(home=>{
-    home.name=name;
-    home.price=price;
-    home.location=location;
-    home.rating=rating;
-    home.description=description;
-    if(req.files && req.files.Photo){
-      fs.unlink(home.Photo, err=>{
-        if(err){
-          console.log("error while removing previous image", err);
-        }
-      })
-      home.Photo=req.files.Photo[0].path;
-    }
-    if(req.files && req.files.Rule_pdf){
-      fs.unlink(home.Rule_pdf, err=>{
-        if(err){
-          console.log("error while removing previous image", err);
-        }
-      })
-      home.Rule_pdf=req.files.Rule_pdf[0].path;
+    if (!req.files?.Photo || !req.files?.Rule_pdf) {
+      return res.status(422).send("Please provide both Photo and PDF");
     }
 
-    home.save().then(result=>{
-      console.log("home is Edited successfully",result);
-    }).catch(err=>{
-      console.log("error while updating home details", err);
-    })
-  }).catch(err=>{
-    console.log("error while editing home", err);
-  });
-  res.redirect('/host/host-homes-list');
-}
-
-exports.postDeleteHome=(req, res, next) => {
-  const homeId=req.params.homeId;
-  if(homeId){
-    Home.findById(homeId).then((home)=>{
-      if(!home){
-        return res.status(404).send("home is not found");
-      }
-      if(home.Photo){
-        fs.unlink(home.Photo, err=>{
-          if(err){
-            console.log("error while removing previous image", err);
-          }
-        })
-      }
-      if(home.Rule_pdf){
-        fs.unlink(home.Rule_pdf, err=>{
-          if(err){
-            console.log("error while removing previous image", err);
-          }
-        })
-      }
-      Home.findByIdAndDelete(homeId).then(()=>res.redirect('/host/host-homes-list'))
-    })
-    .catch(error=>{
-        console.log("Error while deleting home:", error)
+    const home = new Home({
+      name,
+      price,
+      location,
+      rating,
+      description,
+      Photo: req.files.Photo[0].path,
+      Photo_public_id: req.files.Photo[0].filename,
+      Rule_pdf: req.files.Rule_pdf[0].path,
+      Rule_pdf_public_id: req.files.Rule_pdf[0].filename,
     });
+
+    await home.save();
+    console.log("✅ Home added successfully:", home);
+    res.redirect("/host/host-homes-list");
+  } catch (err) {
+    console.error("❌ Error while adding home:", err);
+    res.status(500).send("Server error: " + err.message);
   }
-}
+};
+
+exports.postEditHome = async (req, res, next) => {
+  try {
+    const { id, name, price, location, rating, description } = req.body;
+
+    const home = await Home.findById(id);
+    if (!home) return res.redirect("/host/host-homes-list");
+
+    home.name = name;
+    home.price = price;
+    home.location = location;
+    home.rating = rating;
+    home.description = description;
+
+    // Update Photo if uploaded
+    if (req.files?.Photo) {
+      if (home.Photo_public_id) await cloudinary.uploader.destroy(home.Photo_public_id);
+      home.Photo = req.files.Photo[0].path;
+      home.Photo_public_id = req.files.Photo[0].filename;
+    }
+
+    // Update PDF if uploaded
+    if (req.files?.Rule_pdf) {
+      if (home.Rule_pdf_public_id)
+        await cloudinary.uploader.destroy(home.Rule_pdf_public_id, { resource_type: "raw" });
+
+      // Use URL and public_id from CloudinaryStorage
+      home.Rule_pdf = req.files.Rule_pdf[0].path;
+      home.Rule_pdf_public_id = req.files.Rule_pdf[0].filename;
+    }
+
+    await home.save();
+    console.log("✅ Home edited successfully");
+
+    res.redirect("/host/host-homes-list");
+  } catch (err) {
+    console.error("❌ Error while editing home:", err);
+    res.redirect("/host/host-homes-list");
+  }
+};
+
+
+exports.postDeleteHome = async (req, res, next) => {
+  try {
+    const homeId = req.params.homeId;
+
+    if (!homeId) {
+      return res.status(400).send("Home ID not provided");
+    }
+
+    const home = await Home.findById(homeId);
+    if (!home) {
+      return res.status(404).send("Home not found");
+    }
+
+    // ✅ Remove Photo from Cloudinary
+    if (home.Photo_public_id) {
+      try {
+        await cloudinary.uploader.destroy(home.Photo_public_id);
+        console.log("Photo deleted from Cloudinary");
+      } catch (err) {
+        console.log("Error deleting photo from Cloudinary:", err);
+      }
+    }
+
+    // ✅ Remove Rule_pdf from Cloudinary (resource_type: raw)
+    if (home.Rule_pdf_public_id) {
+      try {
+        await cloudinary.uploader.destroy(home.Rule_pdf_public_id, {
+          resource_type: "raw",
+        });
+        console.log("PDF deleted from Cloudinary");
+      } catch (err) {
+        console.log("Error deleting PDF from Cloudinary:", err);
+      }
+    }
+
+    // ✅ Delete Home from MongoDB
+    await Home.findByIdAndDelete(homeId);
+
+    console.log("Home deleted successfully");
+    res.redirect("/host/host-homes-list");
+
+  } catch (error) {
+    console.log("Error while deleting home:", error);
+    res.status(500).send("Error while deleting home");
+  }
+};
+
 
 exports.getHostHomes=(req, res, next) => {
   Home.find().then(registeredHomes => {

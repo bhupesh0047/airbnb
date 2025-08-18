@@ -2,6 +2,9 @@ const Home= require("../models/home.js");
 const User= require("../models/user.js");
 const path= require("path");
 const rootDir=require("../utils/pathUtil.js");
+const cloudinary = require("cloudinary").v2;
+const https = require("https");
+
 
 exports.getHomes=(req, res, next) => {
   Home.find().then(registeredHomes => {
@@ -89,26 +92,42 @@ exports.getHomeDetails=(req, res, next) => {
   });
 }
 
-exports.getRulesBook=[(req, res, next)=>{
-  if(!req.session.isLoggedIn){
-    res.redirect('/login');
-  }
-  next();
+exports.getRulesBook = [
+  (req, res, next) => {
+    if (!req.session.isLoggedIn) {
+      return res.redirect("/login");
+    }
+    next();
   },
-  (req,res,next)=>{
-    const homeId=req.params.homeId;
-    Home.findById(homeId).then(home=>{
-      if(!home || !home.Rule_pdf){
+  async (req, res, next) => {
+    try {
+      const homeId = req.params.homeId;
+      const home = await Home.findById(homeId);
+
+      if (!home || !home.Rule_pdf) {
         return res.status(404).send("Rule book not found");
       }
-      const filepath=path.join(rootDir, home.Rule_pdf);
-      res.download(filepath, err=>{
-        if(err){
-          console.log("Error downloading file:", err);
-          res.status(500).send("Could not download the file.");
-        }
-      })
-    });
-  }
+
+      const fileUrl = home.Rule_pdf;
+
+      // Extract filename from Cloudinary URL
+      const fileName = "rulebook.pdf"; // you can parse from URL if you want
+
+      // Set headers so browser forces download
+      res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
+      res.setHeader("Content-Type", "application/pdf");
+
+      // ✅ Stream file from Cloudinary to browser
+      https.get(fileUrl, (fileStream) => {
+        fileStream.pipe(res);
+      }).on("error", (err) => {
+        console.error("Error fetching file:", err);
+        res.status(500).send("Error downloading the file.");
+      });
+    } catch (err) {
+      console.error("Error fetching rulebook:", err);
+      res.status(500).send("Could not fetch the file.");
+    }
+  },
 ];
 

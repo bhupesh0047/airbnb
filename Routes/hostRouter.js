@@ -6,6 +6,7 @@ const express=require("express");
 const hostRouter=express.Router();
 const hostController = require("../Controllers/hostController");
 
+
 hostRouter.get("/add-home",hostController.getAddHome);
 hostRouter.post("/host-homes-list",hostController.postAddHome);
 hostRouter.get("/host-homes-list",hostController.getHostHomes);
