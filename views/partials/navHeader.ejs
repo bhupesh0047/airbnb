@@ -1,108 +1,185 @@
 <header class="bg-red-500 text-white shadow-lg">
-  <nav class="container mx-auto flex justify-between items-center py-3 px-6">
-    <!-- Left side -->
-    <ul class="flex items-center gap-x-6">
-      <li>
+  <nav class="container mx-auto px-4 py-3">
+    <div class="flex flex-wrap items-center justify-between">
+      <!-- Left side with Logo and Navigation -->
+      <div class="flex items-center space-x-12">
+        <!-- Logo -->
         <a
           href="/"
           class="text-2xl font-bold <%= currentPage === 'index' ? 'text-white' : 'text-red-100' %> hover:text-white transition duration-300"
         >
           <i class="fab fa-airbnb mr-2"></i>airbnb
         </a>
-      </li>
 
+        <!-- Desktop Navigation -->
+        <div class="hidden lg:flex items-center space-x-6 gap-2">
+          <% if (isLoggedIn) { %> <% if(user && user.userType==='guest'){ %>
+          <a
+            href="/homes"
+            class="flex items-center gap-2 <%= currentPage === 'home' ? 'bg-red-600' : 'hover:bg-red-600' %> py-2 px-4 rounded-full text-sm font-medium transition duration-300"
+          >
+            <i class="fas fa-home"></i>
+            Home List
+          </a>
+          <a
+            href="/favorites"
+            class="flex items-center gap-2 <%= currentPage === 'favorites' ? 'bg-red-600' : 'hover:bg-red-600' %> py-2 px-4 rounded-full text-sm font-medium transition duration-300"
+          >
+            <i class="fas fa-heart"></i>
+            Favorites
+          </a>
+          <% } else { %>
+          <a
+            href="/host/host-homes-list"
+            class="flex items-center gap-2 <%= currentPage === 'hostHomes' ? 'bg-red-600' : 'hover:bg-red-600' %> py-2 px-4 rounded-full text-sm font-medium transition duration-300"
+          >
+            <i class="fas fa-list"></i>
+            Host Homes
+          </a>
+          <a
+            href="/host/add-home"
+            class="flex items-center gap-2 <%= currentPage === 'addHome' ? 'bg-red-600' : 'hover:bg-red-600' %> py-2 px-4 rounded-full text-sm font-medium transition duration-300"
+          >
+            <i class="fas fa-plus-circle"></i>
+            Add Home
+          </a>
+          <% } %> <% } %>
+        </div>
+      </div>
+
+      <!-- Right side with Auth and Mobile Menu -->
+      <div class="flex items-center">
+        <!-- Mobile Menu Button -->
+        <button
+          id="mobile-menu-button"
+          class="lg:hidden text-white focus:outline-none"
+        >
+          <i class="fas fa-bars text-2xl"></i>
+        </button>
+
+        <!-- Desktop Auth Buttons -->
+        <div class="hidden lg:flex items-center space-x-4">
+          <% if (!isLoggedIn) { %>
+          <a
+            href="/login"
+            class="flex items-center gap-2 <%= currentPage === 'login' ? 'bg-white text-red-500' : 'border border-white hover:bg-white hover:text-red-500' %> py-2 px-6 rounded-full text-sm font-medium transition duration-300"
+          >
+            <i class="fas fa-sign-in-alt"></i>
+            Sign In
+          </a>
+          <a
+            href="/signup"
+            class="flex items-center gap-2 <%= currentPage === 'signup' ? 'bg-white text-red-500' : 'border border-white hover:bg-white hover:text-red-500' %> py-2 px-6 rounded-full text-sm font-medium transition duration-300"
+          >
+            <i class="fas fa-user-plus"></i>
+            Sign Up
+          </a>
+          <% } else { %>
+          <form action="/logout" method="POST">
+            <button
+              type="submit"
+              class="flex items-center gap-2 border border-white hover:bg-white hover:text-red-500 py-2 px-6 rounded-full text-sm font-medium transition duration-300"
+            >
+              <i class="fas fa-sign-out-alt"></i>
+              Logout
+            </button>
+          </form>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div
+      id="nav-items"
+      class="hidden lg:hidden mt-4 border-t border-red-400 pt-4"
+    >
       <% if (isLoggedIn) { %>
+      <div class="space-y-2">
         <% if(user && user.userType==='guest'){ %>
-          <li>
-            <a
-              href="/homes"
-              class="flex items-center gap-2 <%= currentPage === 'home' ? 'bg-red-600' : 'hover:bg-red-600' %> py-2 px-4 rounded-full text-sm font-medium transition duration-300"
-            >
-              <i class="fas fa-home"></i>
-              Home List
-            </a>
-          </li>
-          <li>
-            <a
-              href="/bookings"
-              class="flex items-center gap-2 <%= currentPage === 'bookings' ? 'bg-red-600' : 'hover:bg-red-600' %> py-2 px-4 rounded-full text-sm font-medium transition duration-300"
-            >
-              <i class="fas fa-calendar-alt"></i>
-              Bookings
-            </a>
-          </li>
-          <li>
-            <a
-              href="/favorites"
-              class="flex items-center gap-2 <%= currentPage === 'favorites' ? 'bg-red-600' : 'hover:bg-red-600' %> py-2 px-4 rounded-full text-sm font-medium transition duration-300"
-            >
-              <i class="fas fa-heart"></i>
-              Favorites
-            </a>
-          </li>
-        <% }else{ %>
-          <li>
-            <a
-              href="/host/host-homes-list"
-              class="flex items-center gap-2 <%= currentPage === 'hostHomes' ? 'bg-red-600' : 'hover:bg-red-600' %> py-2 px-4 rounded-full text-sm font-medium transition duration-300"
-            >
-              <i class="fas fa-list"></i>
-              Host Homes
-            </a>
-          </li>
-          <li>
-            <a
-              href="/host/add-home"
-              class="flex items-center gap-2 <%= currentPage === 'addHome' ? 'bg-red-600' : 'hover:bg-red-600' %> py-2 px-4 rounded-full text-sm font-medium transition duration-300"
-            >
-              <i class="fas fa-plus-circle"></i>
-              Add Home
-            </a>
-          </li>
+        <a
+          href="/homes"
+          class="block py-2 px-4 text-sm hover:bg-red-600 rounded-md"
+        >
+          <i class="fas fa-home mr-2"></i>Home List
+        </a>
+        <a
+          href="/favorites"
+          class="block py-2 px-4 text-sm hover:bg-red-600 rounded-md"
+        >
+          <i class="fas fa-heart mr-2"></i>Favorites
+        </a>
+        <% } else { %>
+        <a
+          href="/host/host-homes-list"
+          class="block py-2 px-4 text-sm hover:bg-red-600 rounded-md"
+        >
+          <i class="fas fa-list mr-2"></i>Host Homes
+        </a>
+        <a
+          href="/host/add-home"
+          class="block py-2 px-4 text-sm hover:bg-red-600 rounded-md"
+        >
+          <i class="fas fa-plus-circle mr-2"></i>Add Home
+        </a>
         <% } %>
+      </div>
       <% } %>
-    </ul>
 
-    <!-- Right side -->
-    <ul class="flex items-center gap-x-4">
-      <% if (!isLoggedIn) { %>
-      <li>
+      <!-- Mobile Auth Menu -->
+      <div class="mt-4 border-t border-red-400 pt-4 space-y-2">
+        <% if (!isLoggedIn) { %>
         <a
           href="/login"
-          class="flex items-center gap-2 <%= currentPage === 'login' ? 'bg-white text-red-500' : 'border border-white hover:bg-white hover:text-red-500' %> py-2 px-6 rounded-full text-sm font-medium transition duration-300"
+          class="block py-2 px-4 text-sm hover:bg-red-600 rounded-md"
         >
-          <i class="fas fa-sign-in-alt"></i>
-          Sign In
+          <i class="fas fa-sign-in-alt mr-2"></i>Sign In
         </a>
-      </li>
-      <li>
         <a
           href="/signup"
-          class="flex items-center gap-2 <%= currentPage === 'signup' ? 'bg-white text-red-500' : 'border border-white hover:bg-white hover:text-red-500' %> py-2 px-6 rounded-full text-sm font-medium transition duration-300"
+          class="block py-2 px-4 text-sm hover:bg-red-600 rounded-md"
         >
-          <i class="fas fa-user-plus"></i>
-          Sign Up
+          <i class="fas fa-user-plus mr-2"></i>Sign Up
         </a>
-      </li>
-      <% } else { %>
-      <li>
-        <form action="/logout" method="POST" class="inline">
+        <% } else { %>
+        <form action="/logout" method="POST">
           <button
             type="submit"
-            class="flex items-center gap-2 border border-white hover:bg-white hover:text-red-500 py-2 px-6 rounded-full text-sm font-medium transition duration-300"
+            class="w-full text-left py-2 px-4 text-sm hover:bg-red-600 rounded-md"
           >
-            <i class="fas fa-sign-out-alt"></i>
-            Logout
+            <i class="fas fa-sign-out-alt mr-2"></i>Logout
           </button>
         </form>
-      </li>
-      <% } %>
-    </ul>
+        <% } %>
+      </div>
+    </div>
   </nav>
 </header>
 
-<!-- Add Font Awesome to your head section or at the bottom of the body -->
+<!-- Add Font Awesome -->
 <link
   rel="stylesheet"
   href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
 />
+
+<!-- Add JavaScript for mobile menu toggle -->
+<script>
+  document
+    .getElementById("mobile-menu-button")
+    .addEventListener("click", function () {
+      document.getElementById("nav-items").classList.toggle("hidden");
+    });
+
+  // Close mobile menu when clicking outside
+  document.addEventListener("click", function (event) {
+    const navItems = document.getElementById("nav-items");
+    const mobileButton = document.getElementById("mobile-menu-button");
+
+    if (
+      !navItems.contains(event.target) &&
+      !mobileButton.contains(event.target)
+    ) {
+      navItems.classList.add("hidden");
+    }
+  });
+</script>

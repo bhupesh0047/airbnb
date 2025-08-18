@@ -11,7 +11,6 @@ const storeController = require("../Controllers/storeController");
 storeRouter.get("/",storeController.getIndex);
 storeRouter.get("/homes", storeController.getHomes);
 storeRouter.get("/favorites", storeController.getFavoriteList);
-storeRouter.get("/bookings", storeController.getBookings);
 storeRouter.get("/homes/:homeId", storeController.getHomeDetails);
 storeRouter.get("/download-rules/:homeId", storeController.getRulesBook);
 storeRouter.post("/favorites", storeController.postAddToFavories);
